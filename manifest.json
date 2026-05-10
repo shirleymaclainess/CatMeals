@@ -5,7 +5,7 @@
   "scope": "/CatMeals/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#a2ff00",
+  "theme_color": "#faad2e",
   "icons": [
     {
       "src": "icons/icon-192.png",
