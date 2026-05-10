@@ -4,218 +4,747 @@
 <meta charset="UTF-8">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.ico" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Refeições</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>CatMeals</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8F7F4; color: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 32px 16px; }
-  h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
-  .subtitle { font-size: 14px; color: #888; margin-bottom: 32px; }
-  .card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 24px; width: 100%; max-width: 380px; margin-bottom: 16px; }
-  .label { font-size: 11px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
-  .countdown { font-size: 48px; font-weight: 500; letter-spacing: -1px; color: #1A1A1A; line-height: 1; }
-  .countdown.urgent { color: #C0392B; }
-  .countdown.ok { color: #1D9E75; }
-  .next-time { font-size: 16px; color: #555; margin-top: 6px; }
-  .progress-wrap { margin-top: 16px; height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; }
-  .progress-bar { height: 100%; border-radius: 2px; background: #1D9E75; transition: width .5s, background .5s; }
-  .btn-main { width: 100%; max-width: 380px; padding: 14px; background: #1A1A1A; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 500; cursor: pointer; transition: opacity .15s, transform .1s; margin-bottom: 16px; }
-  .btn-main:hover { opacity: .85; }
-  .btn-main:active { transform: scale(.98); }
-  .history-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 20px; width: 100%; max-width: 380px; }
-  .history-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid rgba(0,0,0,0.07); font-size: 14px; }
-  .history-row:last-child { border-bottom: none; }
-  .history-name { color: #1A1A1A; font-weight: 500; }
-  .history-time { color: #888; }
-  .history-interval { font-size: 12px; padding: 2px 8px; border-radius: 20px; }
-  .interval-ok { background: #EAF3DE; color: #27500A; }
-  .interval-late { background: #FCEBEB; color: #791F1F; }
-  .empty { font-size: 14px; color: #aaa; text-align: center; padding: 16px 0; }
-  .notif-btn { width: 100%; max-width: 380px; padding: 10px; background: transparent; color: #555; border: 0.5px solid rgba(0,0,0,0.15); border-radius: 10px; font-size: 13px; cursor: pointer; margin-bottom: 16px; transition: background .15s; }
-  .notif-btn:hover { background: rgba(0,0,0,0.04); }
-  .notif-ok { color: #1D9E75; border-color: #1D9E75; }
-  .status-idle { font-size: 15px; color: #aaa; text-align: center; padding: 8px 0; }
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#F8F7F4;--card:#fff;--border:rgba(0,0,0,0.1);
+  --text:#1A1A1A;--muted:#888;--subtle:#bbb;
+  --green:#1D9E75;--green-bg:#EAF3DE;--green-text:#27500A;
+  --orange:#E67E22;--orange-bg:#FAEEDA;--orange-text:#633806;
+  --red:#C0392B;--red-bg:#FCEBEB;--red-text:#791F1F;
+  --blue:#378ADD;--blue-bg:#E6F1FB;--blue-text:#0C447C;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px;}
+.page{max-width:420px;margin:0 auto;padding:0 16px 0;}
+
+/* topbar */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:20px 16px 0;max-width:420px;margin:0 auto;}
+.topbar-title{font-size:18px;font-weight:500;}
+.btn-icon{background:none;border:none;font-size:22px;cursor:pointer;padding:4px;border-radius:8px;}
+.btn-icon:active{background:rgba(0,0,0,0.07);}
+
+/* drawer menu */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:200;display:none;}
+.drawer-overlay.open{display:block;}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:280px;background:var(--card);z-index:201;padding:28px 20px;transform:translateX(100%);transition:transform .25s;}
+.drawer.open{transform:translateX(0);}
+.drawer h3{font-size:15px;font-weight:500;margin-bottom:16px;}
+.drawer label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;margin-top:12px;}
+.drawer input{width:100%;padding:9px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);}
+.drawer input:focus{outline:none;border-color:rgba(0,0,0,0.3);}
+.btn-close-drawer{margin-top:20px;width:100%;padding:11px;background:var(--text);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;}
+
+.section-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.card{background:var(--card);border:0.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;}
+
+/* refeições */
+.countdown{font-size:44px;font-weight:500;letter-spacing:-1px;line-height:1;}
+.countdown.ok{color:var(--green);}
+.countdown.warn{color:var(--orange);}
+.countdown.urgent{color:var(--red);}
+.next-time{font-size:14px;color:var(--muted);margin-top:4px;}
+.progress-wrap{margin-top:14px;height:4px;background:rgba(0,0,0,0.08);border-radius:2px;overflow:hidden;}
+.progress-bar{height:100%;border-radius:2px;transition:width .5s,background .5s;}
+.btn-main{width:100%;padding:14px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;transition:opacity .15s,transform .1s;margin-bottom:14px;}
+.btn-main:active{transform:scale(.98);opacity:.85;}
+.history-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,0.07);font-size:13px;}
+.history-row:last-child{border-bottom:none;}
+.badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;}
+.badge-ok{background:var(--green-bg);color:var(--green-text);}
+.badge-late{background:var(--red-bg);color:var(--red-text);}
+.badge-warn{background:var(--orange-bg);color:var(--orange-text);}
+.empty{font-size:13px;color:var(--subtle);text-align:center;padding:12px 0;}
+
+/* bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:0.5px solid var(--border);display:flex;max-width:420px;margin:0 auto;left:50%;transform:translateX(-50%);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);gap:3px;position:relative;}
+.nav-btn.active{color:var(--text);}
+.nav-icon{font-size:22px;}
+.nav-badge{position:absolute;top:6px;right:calc(50% - 20px);background:var(--red);color:#fff;font-size:10px;font-weight:600;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
+
+.tab{display:none;}
+.tab.active{display:block;}
+
+/* cuidados */
+.habito-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;}
+.habito-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.habito-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:500;}
+.habito-status{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:500;}
+.status-ok{background:var(--green-bg);color:var(--green-text);}
+.status-warn{background:var(--orange-bg);color:var(--orange-text);}
+.status-late{background:var(--red-bg);color:var(--red-text);}
+.habito-meta{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.btn-registrar{width:100%;padding:10px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;margin-top:8px;}
+.btn-registrar:active{background:#eee;}
+.last-registro{font-size:12px;color:var(--muted);margin-top:6px;text-align:center;}
+.nota-input{width:100%;margin-top:8px;padding:8px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);color:var(--text);resize:none;}
+.nota-input:focus{outline:none;border-color:rgba(0,0,0,0.25);}
+.semana-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:10px 0;}
+.semana-day{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--muted);}
+.semana-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:0.5px solid var(--border);}
+.dot-ok{background:var(--green-bg);color:var(--green-text);}
+.dot-empty{background:var(--bg);}
+.registros-list{margin-top:8px;border-top:0.5px solid var(--border);padding-top:8px;}
+.registro-row{display:flex;align-items:flex-start;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.06);font-size:12px;}
+.registro-row:last-child{border-bottom:none;}
+.registro-nota{color:var(--muted);font-size:11px;margin-top:1px;}
+.btn-del-reg{background:none;border:none;color:var(--subtle);font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0;}
+
+/* mensal */
+.mes-select{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.mes-label{font-size:15px;font-weight:500;}
+.btn-nav-mes{background:none;border:0.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:14px;cursor:pointer;}
+.cal-habito{margin-bottom:20px;}
+.cal-habito-title{font-size:13px;font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-head{font-size:10px;color:var(--muted);text-align:center;padding:2px 0;}
+.cal-day{aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;border:0.5px solid transparent;}
+.cal-day.feito{background:var(--green-bg);color:var(--green-text);font-weight:500;}
+.cal-day.vazio{color:var(--subtle);}
+.cal-day.fora{opacity:0;}
+.btn-export{width:100%;padding:11px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;margin-top:8px;}
+.btn-export:active{background:#eee;}
+
+/* lembretes */
+.lembrete-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;}
+.lembrete-header{display:flex;align-items:center;justify-content:space-between;}
+.lembrete-title{font-size:14px;font-weight:500;display:flex;align-items:center;gap:6px;}
+.lembrete-data{font-size:12px;color:var(--muted);margin-top:4px;}
+.lembrete-status{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;}
+.btn-add{width:100%;padding:11px;border:0.5px dashed var(--border);border-radius:12px;background:transparent;font-size:13px;color:var(--muted);cursor:pointer;margin-top:4px;}
+.btn-add:active{background:var(--bg);}
+
+/* financeiro */
+.fin-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;}
+.fin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.fin-title{font-size:15px;font-weight:500;display:flex;align-items:center;gap:8px;}
+.fin-alerta{font-size:18px;}
+.fin-meta{font-size:12px;color:var(--muted);margin-bottom:10px;}
+.fin-btns{display:flex;gap:8px;margin-top:8px;}
+.btn-fin{flex:1;padding:9px;border:0.5px solid var(--border);border-radius:9px;font-size:12px;font-weight:500;cursor:pointer;background:var(--bg);}
+.btn-fin:active{background:#eee;}
+.btn-fin.alerta-on{background:var(--orange-bg);color:var(--orange-text);border-color:var(--orange);}
+.fin-hist{margin-top:10px;border-top:0.5px solid var(--border);padding-top:8px;}
+.fin-hist-row{display:flex;align-items:flex-start;justify-content:space-between;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.06);font-size:12px;}
+.fin-hist-row:last-child{border-bottom:none;}
+.fin-hist-right{text-align:right;}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:flex-end;justify-content:center;z-index:100;display:none;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:420px;max-height:85vh;overflow-y:auto;}
+.modal h3{font-size:16px;font-weight:500;margin-bottom:16px;}
+.modal label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;margin-top:12px;}
+.modal input,.modal select,.modal textarea{width:100%;padding:10px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);}
+.modal input:focus,.modal select:focus,.modal textarea:focus{outline:none;border-color:rgba(0,0,0,0.3);}
+.modal-btns{display:flex;gap:8px;margin-top:16px;}
+.btn-cancel{flex:1;padding:12px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;font-size:14px;cursor:pointer;}
+.btn-save{flex:2;padding:12px;background:var(--text);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;}
+.btn-del-icon{background:none;border:none;color:var(--subtle);font-size:16px;cursor:pointer;padding:4px;}
+.hidden{display:none;}
+
+.notif-bar{background:var(--blue-bg);border:0.5px solid rgba(55,138,221,0.3);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px;color:var(--blue-text);}
+.notif-bar button{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;}
+.spacer{height:24px;}
 </style>
 </head>
 <body>
 
-<h1>Refeições</h1>
-<p class="subtitle">Registre cada refeição — a próxima é calculada automaticamente</p>
-
-<button class="btn-main" onclick="registrar()">Registrar refeição agora</button>
-<button class="notif-btn" id="notif-btn" onclick="pedirNotificacao()">Ativar notificações</button>
-
-<div class="card" id="card-proximo" style="display:none">
-  <div class="label">Próxima refeição</div>
-  <div class="countdown" id="countdown">--:--</div>
-  <div class="next-time" id="next-time"></div>
-  <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:100%"></div></div>
+<div class="topbar">
+  <span class="topbar-title">🐱 CatMeals</span>
+  <button class="btn-icon" onclick="abrirDrawer()" title="Configurações">⚙️</button>
 </div>
 
-<div id="card-idle" class="card" style="text-align:center">
-  <p class="status-idle">Nenhuma refeição registrada ainda.<br>Registre a primeira para começar.</p>
+<!-- drawer nomes -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="fecharDrawer()"></div>
+<div class="drawer" id="drawer">
+  <h3>Configurações</h3>
+  <label>Nome do gato 1</label>
+  <input id="nome1" value="Bloom" oninput="salvarNomes()">
+  <label>Nome do gato 2</label>
+  <input id="nome2" value="Floretto" oninput="salvarNomes()">
+  <button class="btn-close-drawer" onclick="fecharDrawer()">Fechar</button>
 </div>
 
-<div class="history-card">
-  <div class="label" style="margin-bottom:12px">Histórico de hoje</div>
-  <div id="history-list"><div class="empty">Nenhuma refeição ainda</div></div>
+<div class="page">
+  <div class="notif-bar" id="notif-bar" style="display:none">
+    <span>Ative as notificações</span>
+    <button onclick="pedirNotif()">Ativar</button>
+  </div>
+
+  <!-- REFEIÇÕES sempre visível -->
+  <div style="padding-top:20px">
+    <div class="section-title">Refeições</div>
+    <button class="btn-main" onclick="registrarRefeicao()">Registrar refeição agora</button>
+    <div class="card" id="card-countdown" style="display:none">
+      <div class="countdown ok" id="countdown">--:--</div>
+      <div class="next-time" id="next-time"></div>
+      <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:100%;background:var(--green)"></div></div>
+    </div>
+    <div class="card" id="card-idle" style="text-align:center">
+      <p style="font-size:13px;color:var(--muted)">Nenhuma refeição hoje.<br>Registre a primeira para começar.</p>
+    </div>
+    <div class="card" id="card-hist" style="display:none">
+      <div class="section-title" style="margin-bottom:8px">Histórico de hoje</div>
+      <div id="hist-list"></div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- TABS -->
+  <div id="tab-cuidados" class="tab active">
+    <div class="section-title">Cuidados — <span id="nomes-label">Bloom & Floretto</span></div>
+    <div id="habitos-list"></div>
+  </div>
+
+  <div id="tab-mensal" class="tab">
+    <div class="mes-select">
+      <button class="btn-nav-mes" onclick="mudarMes(-1)">‹</button>
+      <span class="mes-label" id="mes-label"></span>
+      <button class="btn-nav-mes" onclick="mudarMes(1)">›</button>
+    </div>
+    <div id="cal-content"></div>
+    <button class="btn-export" onclick="exportarMes()">Exportar como imagem</button>
+  </div>
+
+  <div id="tab-lembretes" class="tab">
+    <div class="section-title">Lembretes</div>
+    <div id="lembretes-list"></div>
+    <button class="btn-add" onclick="abrirModalLembrete(-1)">+ Adicionar lembrete</button>
+  </div>
+
+  <div id="tab-financeiro" class="tab">
+    <div class="section-title">Controle financeiro</div>
+    <div id="fin-list"></div>
+    <button class="btn-add" onclick="abrirModalFin(-1)">+ Adicionar item</button>
+  </div>
+</div>
+
+<!-- bottom nav -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-cuidados" onclick="trocarTab('cuidados')">
+    <span class="nav-icon">🐾</span><span>Cuidados</span>
+  </button>
+  <button class="nav-btn" id="nav-mensal" onclick="trocarTab('mensal')">
+    <span class="nav-icon">📅</span><span>Mensal</span>
+  </button>
+  <button class="nav-btn" id="nav-lembretes" onclick="trocarTab('lembretes')">
+    <span class="nav-icon">🔔</span><span>Lembretes</span>
+    <span class="nav-badge hidden" id="badge-lembretes">0</span>
+  </button>
+  <button class="nav-btn" id="nav-financeiro" onclick="trocarTab('financeiro')">
+    <span class="nav-icon">💰</span><span>Finanças</span>
+    <span class="nav-badge hidden" id="badge-fin">!</span>
+  </button>
+</nav>
+
+<!-- modals -->
+<div class="modal-overlay" id="modal-lembrete">
+  <div class="modal">
+    <h3 id="ml-title">Novo lembrete</h3>
+    <label>Nome</label><input id="l-nome" placeholder="Ex: Vacina anual">
+    <label>Ícone (emoji)</label><input id="l-emoji" placeholder="💉" maxlength="2">
+    <label>Data</label><input id="l-data" type="date">
+    <label>Repetir</label>
+    <select id="l-repeat">
+      <option value="">Não repetir</option>
+      <option value="30">Mensal</option>
+      <option value="180">Semestral</option>
+      <option value="365">Anual</option>
+    </select>
+    <label>Observação</label>
+    <textarea id="l-obs" rows="2" placeholder="Opcional"></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fecharModal('modal-lembrete')">Cancelar</button>
+      <button class="btn-save" onclick="salvarLembrete()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-compra">
+  <div class="modal">
+    <h3>Registrar compra</h3>
+    <label>Data da compra</label><input id="c-data" type="date">
+    <label>Marca</label><input id="c-marca" placeholder="Ex: Royal Canin">
+    <label>Preço (R$)</label><input id="c-preco" type="number" step="0.01" placeholder="0,00">
+    <label>Quantidade</label><input id="c-qtd" placeholder="Ex: 1 saco 3kg">
+    <label>Observação</label><textarea id="c-obs" rows="2" placeholder="Opcional"></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fecharModal('modal-compra')">Cancelar</button>
+      <button class="btn-save" onclick="salvarCompra()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-fin">
+  <div class="modal">
+    <h3 id="mf-title">Novo item</h3>
+    <label>Nome</label><input id="f-nome" placeholder="Ex: Ração">
+    <label>Ícone (emoji)</label><input id="f-emoji" placeholder="🥣" maxlength="2">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fecharModal('modal-fin')">Cancelar</button>
+      <button class="btn-save" onclick="salvarItemFin()">Salvar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-  const INTERVALO = 3 * 60 * 60 * 1000;
-  const NOMES = ['1ª refeição','2ª refeição','3ª refeição','4ª refeição','5ª refeição','6ª refeição','7ª refeição','8ª refeição'];
-  let refeicoes = JSON.parse(localStorage.getItem('refeicoes_hoje') || '[]');
-  let timerNotif = null;
-  let intervaloTick = null;
+// ── STORAGE ──
+function load(k,d){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function pad(n){return String(n).padStart(2,'0');}
+function fmtHora(ts){const d=new Date(ts);return pad(d.getHours())+':'+pad(d.getMinutes());}
+function fmtData(ts){return new Date(ts).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});}
+function hoje(){return new Date().toDateString();}
 
-  function hoje() { return new Date().toDateString(); }
+// ── DRAWER ──
+function abrirDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('drawer-overlay').classList.add('open');}
+function fecharDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-overlay').classList.remove('open');}
 
-  function limparSeNovoDia() {
-    const ultimo = localStorage.getItem('refeicoes_dia');
-    if (ultimo !== hoje()) {
-      refeicoes = [];
-      localStorage.setItem('refeicoes_hoje', '[]');
-      localStorage.setItem('refeicoes_dia', hoje());
+// ── REFEIÇÕES ──
+const INTERVALO_REF=3*60*60*1000;
+const NOMES_REF=['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª'];
+let tickTimer=null,notifTimer=null;
+
+function checarDia(){if(load('ref_dia','')!==hoje()){save('ref_list',[]);save('ref_dia',hoje());}}
+
+function registrarRefeicao(){
+  checarDia();
+  const list=load('ref_list',[]);
+  list.push(Date.now());
+  save('ref_list',list);
+  renderRefeicoes();
+  agendarNotifRef();
+}
+
+function renderRefeicoes(){
+  checarDia();
+  const list=load('ref_list',[]);
+  const cd=document.getElementById('card-countdown');
+  const ci=document.getElementById('card-idle');
+  const ch=document.getElementById('card-hist');
+  const hl=document.getElementById('hist-list');
+  if(!list.length){cd.style.display='none';ci.style.display='block';ch.style.display='none';if(tickTimer)clearInterval(tickTimer);return;}
+  ci.style.display='none';cd.style.display='block';ch.style.display='block';
+  const ultima=list[list.length-1];
+  const proxima=ultima+INTERVALO_REF;
+  if(tickTimer)clearInterval(tickTimer);
+  tickTimer=setInterval(()=>tickRef(ultima,proxima),1000);
+  tickRef(ultima,proxima);
+  hl.innerHTML='';
+  list.slice().reverse().forEach((ts,i)=>{
+    const idx=list.length-1-i;
+    const row=document.createElement('div');row.className='history-row';
+    let b='';
+    if(idx>0){const m=Math.round(Math.abs(ts-list[idx-1])/60000);const h=(m/60).toFixed(1);const ok=m>=150&&m<=210;b=`<span class="badge ${ok?'badge-ok':'badge-late'}">${h}h</span>`;}
+    const delBtn=`<button class="btn-del-reg" onclick="deletarRefeicao(${idx})" title="Remover">✕</button>`;
+    row.innerHTML=`<span style="font-weight:500">${NOMES_REF[idx]||idx+1+'ª'} refeição</span><span style="display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px">${fmtHora(ts)} ${b} ${delBtn}</span>`;
+    hl.appendChild(row);
+  });
+}
+
+function deletarRefeicao(idx){
+  if(!confirm('Remover este registro?'))return;
+  const list=load('ref_list',[]);
+  list.splice(idx,1);
+  save('ref_list',list);
+  renderRefeicoes();
+}
+
+function tickRef(ultima,proxima){
+  const agora=Date.now();const restante=proxima-agora;
+  const el=document.getElementById('countdown');
+  const bar=document.getElementById('progress-bar');
+  const nt=document.getElementById('next-time');
+  nt.textContent='às '+fmtHora(proxima);
+  if(restante<=0){el.textContent='Hora de comer!';el.className='countdown urgent';bar.style.width='100%';bar.style.background='var(--red)';return;}
+  const h=Math.floor(restante/3600000);const m=Math.floor((restante%3600000)/60000);const s=Math.floor((restante%60000)/1000);
+  el.textContent=(h>0?pad(h)+':':'')+pad(m)+':'+pad(s);
+  const pct=Math.max(0,Math.min(100,(restante/INTERVALO_REF)*100));
+  bar.style.width=pct+'%';
+  if(restante<30*60*1000){el.className='countdown urgent';bar.style.background='var(--red)';}
+  else if(restante<60*60*1000){el.className='countdown warn';bar.style.background='var(--orange)';}
+  else{el.className='countdown ok';bar.style.background='var(--green)';}
+}
+
+function agendarNotifRef(){
+  if(notifTimer)clearTimeout(notifTimer);
+  if(!('Notification'in window)||Notification.permission!=='granted')return;
+  const list=load('ref_list',[]);if(!list.length)return;
+  const delay=list[list.length-1]+INTERVALO_REF-Date.now();
+  if(delay>0)notifTimer=setTimeout(()=>new Notification('Hora da refeição!',{body:'Já se passaram 3 horas.'}),delay);
+}
+
+// ── CUIDADOS ──
+const HABITOS_DEF=[
+  {id:'unhas',emoji:'✂️',nome:'Cortar unhas / aparar pelos',freq:'A cada 15 dias',dias:15,tipo:'data'},
+  {id:'banho',emoji:'🛁',nome:'Banho',freq:'Mensal (máx 3 meses)',dias:90,alerta:60,tipo:'data'},
+  {id:'escovapelo',emoji:'🪮',nome:'Escovação de pelo + lenço',freq:'3x por semana',vezesSemana:3,tipo:'semana'},
+  {id:'escovadente',emoji:'🦷',nome:'Escovação de dentes',freq:'3x por semana',vezesSemana:3,tipo:'semana'},
+];
+
+function getRegs(id){return load('hab_'+id,[]);}
+function addReg(id,nota){const r=getRegs(id);r.unshift({ts:Date.now(),nota:nota||''});save('hab_'+id,r.slice(0,100));}
+function delReg(id,i){const r=getRegs(id);r.splice(i,1);save('hab_'+id,r);renderHabitos();}
+
+function statusHabito(h){
+  const r=getRegs(h.id);
+  if(h.tipo==='data'){
+    if(!r.length)return{label:'Nunca feito',cls:'status-late'};
+    const dias=Math.floor((Date.now()-r[0].ts)/86400000);
+    const alerta=h.alerta||Math.round(h.dias*0.7);
+    if(dias<alerta)return{label:'Em dia',cls:'status-ok'};
+    if(dias<h.dias)return{label:`${dias}d atrás`,cls:'status-warn'};
+    return{label:`${dias}d — atrasado`,cls:'status-late'};
+  } else {
+    const semAgo=Date.now()-7*24*60*60*1000;
+    const cnt=r.filter(x=>x.ts>=semAgo).length;
+    if(cnt>=h.vezesSemana)return{label:`${cnt}x esta semana`,cls:'status-ok'};
+    if(cnt>0)return{label:`${cnt}/${h.vezesSemana}x esta semana`,cls:'status-warn'};
+    return{label:`0/${h.vezesSemana}x esta semana`,cls:'status-late'};
+  }
+}
+
+function renderHabitos(){
+  const el=document.getElementById('habitos-list');
+  const n1=load('nome1','Bloom');const n2=load('nome2','Floretto');
+  document.getElementById('nomes-label').textContent=n1+' & '+n2;
+  el.innerHTML='';
+  HABITOS_DEF.forEach(h=>{
+    const st=statusHabito(h);
+    const regs=getRegs(h.id);
+    let semanaHtml='';
+    if(h.tipo==='semana'){
+      const days=['D','S','T','Q','Q','S','S'];
+      const dots=Array.from({length:7},(_,i)=>{
+        const d=new Date();d.setDate(d.getDate()-6+i);
+        const ini=new Date(d);ini.setHours(0,0,0,0);
+        const fim=new Date(d);fim.setHours(23,59,59,999);
+        const feito=regs.some(r=>r.ts>=ini.getTime()&&r.ts<=fim.getTime());
+        return`<div class="semana-day"><span>${days[d.getDay()]}</span><div class="semana-dot ${feito?'dot-ok':'dot-empty'}">${feito?'✓':''}</div></div>`;
+      }).join('');
+      semanaHtml=`<div class="semana-grid">${dots}</div>`;
     }
-  }
-
-  function registrar() {
-    limparSeNovoDia();
-    const agora = Date.now();
-    refeicoes.push(agora);
-    localStorage.setItem('refeicoes_hoje', JSON.stringify(refeicoes));
-    localStorage.setItem('refeicoes_dia', hoje());
-    renderizar();
-    agendarNotificacao();
-  }
-
-  function pad(n) { return String(n).padStart(2,'0'); }
-
-  function formatarHora(ts) {
-    const d = new Date(ts);
-    return pad(d.getHours()) + ':' + pad(d.getMinutes());
-  }
-
-  function diffMinutos(a, b) {
-    return Math.round(Math.abs(a - b) / 60000);
-  }
-
-  function renderizar() {
-    limparSeNovoDia();
-    if (refeicoes.length === 0) {
-      document.getElementById('card-proximo').style.display = 'none';
-      document.getElementById('card-idle').style.display = 'block';
-      document.getElementById('history-list').innerHTML = '<div class="empty">Nenhuma refeição ainda</div>';
-      if (intervaloTick) clearInterval(intervaloTick);
-      return;
+    let histHtml='';
+    if(regs.length){
+      histHtml='<div class="registros-list">'+regs.slice(0,5).map((r,i)=>`
+        <div class="registro-row">
+          <div><div>${fmtData(r.ts)} às ${fmtHora(r.ts)}</div>${r.nota?`<div class="registro-nota">${r.nota}</div>`:''}</div>
+          <button class="btn-del-reg" onclick="delReg('${h.id}',${i})" title="Remover">✕</button>
+        </div>`).join('')+'</div>';
     }
+    const div=document.createElement('div');div.className='habito-card';
+    div.innerHTML=`
+      <div class="habito-header">
+        <div class="habito-title"><span>${h.emoji}</span>${h.nome}</div>
+        <span class="habito-status ${st.cls}">${st.label}</span>
+      </div>
+      <div class="habito-meta">${h.freq}</div>
+      ${semanaHtml}
+      <textarea class="nota-input" id="nota-${h.id}" placeholder="Observação (opcional)..." rows="1"></textarea>
+      <button class="btn-registrar" onclick="registrarHabito('${h.id}')">Registrar agora</button>
+      ${regs.length?`<div class="last-registro">Último: ${fmtData(regs[0].ts)} às ${fmtHora(regs[0].ts)}</div>`:''}
+      ${histHtml}`;
+    el.appendChild(div);
+  });
+}
 
-    document.getElementById('card-idle').style.display = 'none';
-    document.getElementById('card-proximo').style.display = 'block';
+function registrarHabito(id){
+  const nota=document.getElementById('nota-'+id).value.trim();
+  addReg(id,nota);
+  document.getElementById('nota-'+id).value='';
+  renderHabitos();
+}
 
-    const ultima = refeicoes[refeicoes.length - 1];
-    const proxima = ultima + INTERVALO;
+function salvarNomes(){
+  save('nome1',document.getElementById('nome1').value);
+  save('nome2',document.getElementById('nome2').value);
+  renderHabitos();
+}
 
-    if (intervaloTick) clearInterval(intervaloTick);
-    intervaloTick = setInterval(() => tick(ultima, proxima), 1000);
-    tick(ultima, proxima);
+// ── MENSAL ──
+let mesAtual=new Date();
 
-    const lista = document.getElementById('history-list');
-    lista.innerHTML = '';
-    refeicoes.slice().reverse().forEach((ts, i) => {
-      const idx = refeicoes.length - 1 - i;
-      const row = document.createElement('div');
-      row.className = 'history-row';
-      let intervalHtml = '';
-      if (idx > 0) {
-        const mins = diffMinutos(ts, refeicoes[idx - 1]);
-        const horas = (mins / 60).toFixed(1);
-        const ok = mins >= 150 && mins <= 210;
-        intervalHtml = `<span class="history-interval ${ok ? 'interval-ok' : 'interval-late'}">${horas}h depois</span>`;
-      }
-      row.innerHTML = `<span class="history-name">${NOMES[idx] || (idx+1)+'ª refeição'}</span><span class="history-time">${formatarHora(ts)}</span>${intervalHtml}`;
-      lista.appendChild(row);
+function mudarMes(d){mesAtual=new Date(mesAtual.getFullYear(),mesAtual.getMonth()+d,1);renderMensal();}
+
+function renderMensal(){
+  const ano=mesAtual.getFullYear();const mes=mesAtual.getMonth();
+  document.getElementById('mes-label').textContent=mesAtual.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  const el=document.getElementById('cal-content');el.innerHTML='';
+  const diasNoMes=new Date(ano,mes+1,0).getDate();
+  const primeiroDia=new Date(ano,mes,1).getDay();
+  HABITOS_DEF.forEach(h=>{
+    const regs=getRegs(h.id);
+    const div=document.createElement('div');div.className='cal-habito';
+    let grid='<div class="cal-grid">';
+    ['D','S','T','Q','Q','S','S'].forEach(d=>{grid+=`<div class="cal-head">${d}</div>`;});
+    for(let i=0;i<primeiroDia;i++)grid+=`<div class="cal-day fora"></div>`;
+    for(let d=1;d<=diasNoMes;d++){
+      const ini=new Date(ano,mes,d,0,0,0,0).getTime();
+      const fim=new Date(ano,mes,d,23,59,59,999).getTime();
+      const feito=regs.some(r=>r.ts>=ini&&r.ts<=fim);
+      grid+=`<div class="cal-day ${feito?'feito':'vazio'}">${feito?'✓':d}</div>`;
+    }
+    grid+='</div>';
+    div.innerHTML=`<div class="cal-habito-title"><span>${h.emoji}</span>${h.nome}</div>${grid}`;
+    el.appendChild(div);
+  });
+}
+
+function exportarMes(){
+  const el=document.getElementById('cal-content');
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  s.onload=()=>{
+    html2canvas(el,{backgroundColor:'#F8F7F4',scale:2}).then(canvas=>{
+      const a=document.createElement('a');
+      a.download='cuidados-'+mesAtual.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})+'.png';
+      a.href=canvas.toDataURL();a.click();
     });
-  }
+  };
+  if(!window.html2canvas)document.head.appendChild(s);
+  else html2canvas(el,{backgroundColor:'#F8F7F4',scale:2}).then(canvas=>{
+    const a=document.createElement('a');
+    a.download='cuidados-'+mesAtual.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})+'.png';
+    a.href=canvas.toDataURL();a.click();
+  });
+}
 
-  function tick(ultima, proxima) {
-    const agora = Date.now();
-    const restante = proxima - agora;
-    const total = INTERVALO;
-    const el = document.getElementById('countdown');
-    const bar = document.getElementById('progress-bar');
-    const nextEl = document.getElementById('next-time');
+// ── LEMBRETES ──
+let editLembreteIdx=-1;
+function getLembretes(){return load('lembretes',[]);}
 
-    nextEl.textContent = 'às ' + formatarHora(proxima);
+function renderLembretes(){
+  const el=document.getElementById('lembretes-list');
+  const list=getLembretes();
+  const badge=document.getElementById('badge-lembretes');
+  let alertas=0;el.innerHTML='';
+  if(!list.length){el.innerHTML='<div class="empty">Nenhum lembrete ainda</div>';badge.classList.add('hidden');return;}
+  list.forEach((l,i)=>{
+    const dias=Math.ceil((new Date(l.data)-Date.now())/86400000);
+    let cls,label;
+    if(dias<0){cls='status-late';label=`${Math.abs(dias)}d atrasado`;alertas++;}
+    else if(dias===0){cls='status-warn';label='Hoje';alertas++;}
+    else if(dias<=14){cls='status-warn';label=`Em ${dias}d`;alertas++;}
+    else{cls='status-ok';label=`Em ${dias}d`;}
+    const d=new Date(l.data);
+    const ds=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+    const div=document.createElement('div');div.className='lembrete-card';
+    div.innerHTML=`
+      <div class="lembrete-header">
+        <div class="lembrete-title">${l.emoji||'🔔'} ${l.nome}</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <span class="lembrete-status ${cls}">${label}</span>
+          <button class="btn-del-icon" onclick="abrirModalLembrete(${i})">✏️</button>
+          <button class="btn-del-icon" onclick="deletarLembrete(${i})">🗑</button>
+        </div>
+      </div>
+      <div class="lembrete-data">${ds}${l.repeat?` · repete a cada ${l.repeat} dias`:''}</div>
+      ${l.obs?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${l.obs}</div>`:''}`;
+    el.appendChild(div);
+  });
+  if(alertas>0){badge.textContent=alertas;badge.classList.remove('hidden');}
+  else badge.classList.add('hidden');
+}
 
-    if (restante <= 0) {
-      el.textContent = 'Hora de comer!';
-      el.className = 'countdown urgent';
-      bar.style.width = '100%';
-      bar.style.background = '#C0392B';
-      return;
+function abrirModalLembrete(i){
+  editLembreteIdx=i;
+  const l=i>=0?getLembretes()[i]:{};
+  document.getElementById('ml-title').textContent=i>=0?'Editar lembrete':'Novo lembrete';
+  document.getElementById('l-nome').value=l.nome||'';
+  document.getElementById('l-emoji').value=l.emoji||'';
+  document.getElementById('l-data').value=l.data||'';
+  document.getElementById('l-repeat').value=l.repeat||'';
+  document.getElementById('l-obs').value=l.obs||'';
+  abrirModal('modal-lembrete');
+}
+
+function salvarLembrete(){
+  const nome=document.getElementById('l-nome').value.trim();
+  const data=document.getElementById('l-data').value;
+  if(!nome||!data){alert('Preencha nome e data.');return;}
+  const list=getLembretes();
+  const obj={nome,emoji:document.getElementById('l-emoji').value||'🔔',data,repeat:document.getElementById('l-repeat').value,obs:document.getElementById('l-obs').value.trim()};
+  if(editLembreteIdx>=0)list[editLembreteIdx]=obj;else list.push(obj);
+  list.sort((a,b)=>new Date(a.data)-new Date(b.data));
+  save('lembretes',list);
+  fecharModal('modal-lembrete');
+  renderLembretes();
+  agendarNotifLembretes();
+}
+
+function deletarLembrete(i){
+  if(!confirm('Remover este lembrete?'))return;
+  const list=getLembretes();list.splice(i,1);save('lembretes',list);renderLembretes();
+}
+
+function agendarNotifLembretes(){
+  if(!('Notification'in window)||Notification.permission!=='granted')return;
+  getLembretes().forEach(l=>{
+    const d=new Date(l.data);d.setHours(9,0,0,0);
+    const delay=d-Date.now();
+    if(delay>0&&delay<7*24*60*60*1000)setTimeout(()=>new Notification(`Lembrete: ${l.nome}`,{body:l.obs||'Verifique o app.'}),delay);
+  });
+}
+
+// ── FINANCEIRO ──
+let compraItemId=null;
+let editFinIdx=-1;
+
+function getFinItens(){return load('fin_itens',[{id:'racao',emoji:'🥣',nome:'Ração'},{id:'sache',emoji:'🍱',nome:'Sachê'},{id:'pate',emoji:'🥩',nome:'Patê'},{id:'areia',emoji:'🪣',nome:'Areia'}]);}
+function saveFinItens(v){save('fin_itens',v);}
+function getCompras(id){return load('fin_compras_'+id,[]);}
+function saveCompras(id,v){save('fin_compras_'+id,v);}
+
+function renderFinanceiro(){
+  const el=document.getElementById('fin-list');
+  const itens=getFinItens();
+  const badge=document.getElementById('badge-fin');
+  let alertas=0;el.innerHTML='';
+  itens.forEach((item,idx)=>{
+    const compras=getCompras(item.id);
+    const alerta=load('fin_alerta_'+item.id,false);
+    if(alerta)alertas++;
+    const ultima=compras[0];
+    let ultimaStr=ultima?`${fmtData(ultima.ts)} — ${ultima.marca||''}${ultima.preco?' R$'+parseFloat(ultima.preco).toFixed(2):''}${ultima.qtd?' '+ultima.qtd:''}`.trim():'Nenhuma compra registrada';
+    let histHtml='';
+    if(compras.length){
+      histHtml='<div class="fin-hist">'+compras.slice(0,4).map((c,ci)=>`
+        <div class="fin-hist-row">
+          <div><div style="font-weight:500">${fmtData(c.ts)}</div>${c.nota?`<div style="font-size:11px;color:var(--muted)">${c.nota}</div>`:''}</div>
+          <div class="fin-hist-right" style="font-size:12px">
+            ${c.marca?`<div>${c.marca}</div>`:''}
+            ${c.preco?`<div>R$ ${parseFloat(c.preco).toFixed(2)}</div>`:''}
+            ${c.qtd?`<div style="color:var(--muted)">${c.qtd}</div>`:''}
+            <button class="btn-del-reg" onclick="delCompra('${item.id}',${ci})" title="Remover">✕</button>
+          </div>
+        </div>`).join('')+'</div>';
     }
+    const div=document.createElement('div');div.className='fin-card';
+    div.innerHTML=`
+      <div class="fin-header">
+        <div class="fin-title">${item.emoji} ${item.nome} ${alerta?'<span class="fin-alerta" title="Tá acabando">⚠️</span>':''}</div>
+        <button class="btn-del-icon" onclick="deletarItemFin(${idx})">🗑</button>
+      </div>
+      <div class="fin-meta">${ultimaStr}</div>
+      <div class="fin-btns">
+        <button class="btn-fin ${alerta?'alerta-on':''}" onclick="toggleAlerta('${item.id}',${!alerta})">${alerta?'✓ Tá acabando':'Tá acabando'}</button>
+        <button class="btn-fin" onclick="abrirModalCompra('${item.id}')">Registrar compra</button>
+        <button class="btn-del-icon" onclick="abrirModalFin(${idx})" style="font-size:14px;padding:0 4px">✏️</button>
+      </div>
+      ${histHtml}`;
+    el.appendChild(div);
+  });
+  if(alertas>0){badge.textContent=alertas;badge.classList.remove('hidden');}
+  else badge.classList.add('hidden');
+}
 
-    const h = Math.floor(restante / 3600000);
-    const m = Math.floor((restante % 3600000) / 60000);
-    const s = Math.floor((restante % 60000) / 1000);
-    el.textContent = (h > 0 ? pad(h) + ':' : '') + pad(m) + ':' + pad(s);
-
-    const pct = Math.max(0, Math.min(100, (restante / total) * 100));
-    bar.style.width = pct + '%';
-
-    if (restante < 30 * 60 * 1000) {
-      el.className = 'countdown urgent';
-      bar.style.background = '#E67E22';
-    } else {
-      el.className = 'countdown ok';
-      bar.style.background = '#1D9E75';
-    }
+function toggleAlerta(id,on){
+  save('fin_alerta_'+id,on);
+  if(on&&'Notification'in window&&Notification.permission==='granted'){
+    new Notification('Tá acabando!',{body:`${id} está acabando. Hora de comprar!`});
   }
+  renderFinanceiro();
+}
 
-  function pedirNotificacao() {
-    if (!('Notification' in window)) {
-      alert('Seu navegador não suporta notificações.');
-      return;
-    }
-    Notification.requestPermission().then(p => {
-      const btn = document.getElementById('notif-btn');
-      if (p === 'granted') {
-        btn.textContent = 'Notificações ativadas';
-        btn.classList.add('notif-ok');
-      } else {
-        btn.textContent = 'Permissão negada pelo navegador';
-      }
-    });
-  }
+function abrirModalCompra(id){
+  compraItemId=id;
+  document.getElementById('c-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('c-marca').value='';
+  document.getElementById('c-preco').value='';
+  document.getElementById('c-qtd').value='';
+  document.getElementById('c-obs').value='';
+  abrirModal('modal-compra');
+}
 
-  function agendarNotificacao() {
-    if (timerNotif) clearTimeout(timerNotif);
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const ultima = refeicoes[refeicoes.length - 1];
-    const proxima = ultima + INTERVALO;
-    const delay = proxima - Date.now();
-    if (delay > 0) {
-      timerNotif = setTimeout(() => {
-        new Notification('Hora da refeição!', { body: 'Já se passaram 3 horas desde a última refeição.', icon: '' });
-      }, delay);
-    }
-  }
+function salvarCompra(){
+  const compras=getCompras(compraItemId);
+  compras.unshift({
+    ts:new Date(document.getElementById('c-data').value).getTime()||Date.now(),
+    marca:document.getElementById('c-marca').value.trim(),
+    preco:document.getElementById('c-preco').value,
+    qtd:document.getElementById('c-qtd').value.trim(),
+    nota:document.getElementById('c-obs').value.trim()
+  });
+  saveCompras(compraItemId,compras.slice(0,50));
+  save('fin_alerta_'+compraItemId,false);
+  fecharModal('modal-compra');
+  renderFinanceiro();
+}
 
-  function init() {
-    limparSeNovoDia();
-    const btn = document.getElementById('notif-btn');
-    if ('Notification' in window && Notification.permission === 'granted') {
-      btn.textContent = 'Notificações ativadas';
-      btn.classList.add('notif-ok');
-    }
-    renderizar();
-    if (refeicoes.length > 0) agendarNotificacao();
-  }
+function delCompra(id,i){
+  if(!confirm('Remover este registro?'))return;
+  const c=getCompras(id);c.splice(i,1);saveCompras(id,c);renderFinanceiro();
+}
 
-  init();
+function abrirModalFin(i){
+  editFinIdx=i;
+  const itens=getFinItens();
+  const item=i>=0?itens[i]:{};
+  document.getElementById('mf-title').textContent=i>=0?'Editar item':'Novo item';
+  document.getElementById('f-nome').value=item.nome||'';
+  document.getElementById('f-emoji').value=item.emoji||'';
+  abrirModal('modal-fin');
+}
 
-  navigator.serviceWorker?.register?.('sw.js');
+function salvarItemFin(){
+  const nome=document.getElementById('f-nome').value.trim();
+  if(!nome){alert('Preencha o nome.');return;}
+  const itens=getFinItens();
+  const obj={id:'fin_'+Date.now(),emoji:document.getElementById('f-emoji').value||'📦',nome};
+  if(editFinIdx>=0){obj.id=itens[editFinIdx].id;itens[editFinIdx]=obj;}
+  else itens.push(obj);
+  saveFinItens(itens);
+  fecharModal('modal-fin');
+  renderFinanceiro();
+}
+
+function deletarItemFin(i){
+  if(!confirm('Remover este item?'))return;
+  const itens=getFinItens();itens.splice(i,1);saveFinItens(itens);renderFinanceiro();
+}
+
+// ── MODAL ──
+function abrirModal(id){document.getElementById(id).classList.add('open');}
+function fecharModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ── NAV ──
+const TABS=['cuidados','mensal','lembretes','financeiro'];
+function trocarTab(tab){
+  TABS.forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('nav-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='mensal')renderMensal();
+}
+
+// ── NOTIFICAÇÕES ──
+function pedirNotif(){
+  Notification.requestPermission().then(p=>{
+    if(p==='granted'){document.getElementById('notif-bar').style.display='none';agendarNotifRef();agendarNotifLembretes();}
+  });
+}
+
+// ── INIT ──
+function init(){
+  if('Notification'in window&&Notification.permission==='default')document.getElementById('notif-bar').style.display='flex';
+  document.getElementById('nome1').value=load('nome1','Bloom');
+  document.getElementById('nome2').value=load('nome2','Floretto');
+  renderRefeicoes();
+  renderHabitos();
+  renderLembretes();
+  renderFinanceiro();
+  renderMensal();
+  if(load('ref_list',[]).length)agendarNotifRef();
+  agendarNotifLembretes();
+}
+init();
+
+navigator.serviceWorker?.register?.('sw.js');
 </script>
 </body>
 </html>
