@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refeições</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8F7F4; color: #1A1A1A; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 32px 16px; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #888; margin-bottom: 32px; }
+  .card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 24px; width: 100%; max-width: 380px; margin-bottom: 16px; }
+  .label { font-size: 11px; font-weight: 500; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+  .countdown { font-size: 48px; font-weight: 500; letter-spacing: -1px; color: #1A1A1A; line-height: 1; }
+  .countdown.urgent { color: #C0392B; }
+  .countdown.ok { color: #1D9E75; }
+  .next-time { font-size: 16px; color: #555; margin-top: 6px; }
+  .progress-wrap { margin-top: 16px; height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; }
+  .progress-bar { height: 100%; border-radius: 2px; background: #1D9E75; transition: width .5s, background .5s; }
+  .btn-main { width: 100%; max-width: 380px; padding: 14px; background: #1A1A1A; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 500; cursor: pointer; transition: opacity .15s, transform .1s; margin-bottom: 16px; }
+  .btn-main:hover { opacity: .85; }
+  .btn-main:active { transform: scale(.98); }
+  .history-card { background: #fff; border: 0.5px solid rgba(0,0,0,0.12); border-radius: 16px; padding: 20px; width: 100%; max-width: 380px; }
+  .history-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid rgba(0,0,0,0.07); font-size: 14px; }
+  .history-row:last-child { border-bottom: none; }
+  .history-name { color: #1A1A1A; font-weight: 500; }
+  .history-time { color: #888; }
+  .history-interval { font-size: 12px; padding: 2px 8px; border-radius: 20px; }
+  .interval-ok { background: #EAF3DE; color: #27500A; }
+  .interval-late { background: #FCEBEB; color: #791F1F; }
+  .empty { font-size: 14px; color: #aaa; text-align: center; padding: 16px 0; }
+  .notif-btn { width: 100%; max-width: 380px; padding: 10px; background: transparent; color: #555; border: 0.5px solid rgba(0,0,0,0.15); border-radius: 10px; font-size: 13px; cursor: pointer; margin-bottom: 16px; transition: background .15s; }
+  .notif-btn:hover { background: rgba(0,0,0,0.04); }
+  .notif-ok { color: #1D9E75; border-color: #1D9E75; }
+  .status-idle { font-size: 15px; color: #aaa; text-align: center; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<h1>Refeições</h1>
+<p class="subtitle">Registre cada refeição — a próxima é calculada automaticamente</p>
+
+<button class="btn-main" onclick="registrar()">Registrar refeição agora</button>
+<button class="notif-btn" id="notif-btn" onclick="pedirNotificacao()">Ativar notificações</button>
+
+<div class="card" id="card-proximo" style="display:none">
+  <div class="label">Próxima refeição</div>
+  <div class="countdown" id="countdown">--:--</div>
+  <div class="next-time" id="next-time"></div>
+  <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:100%"></div></div>
+</div>
+
+<div id="card-idle" class="card" style="text-align:center">
+  <p class="status-idle">Nenhuma refeição registrada ainda.<br>Registre a primeira para começar.</p>
+</div>
+
+<div class="history-card">
+  <div class="label" style="margin-bottom:12px">Histórico de hoje</div>
+  <div id="history-list"><div class="empty">Nenhuma refeição ainda</div></div>
+</div>
+
+<script>
+  const INTERVALO = 3 * 60 * 60 * 1000;
+  const NOMES = ['1ª refeição','2ª refeição','3ª refeição','4ª refeição','5ª refeição','6ª refeição','7ª refeição','8ª refeição'];
+  let refeicoes = JSON.parse(localStorage.getItem('refeicoes_hoje') || '[]');
+  let timerNotif = null;
+  let intervaloTick = null;
+
+  function hoje() { return new Date().toDateString(); }
+
+  function limparSeNovoDia() {
+    const ultimo = localStorage.getItem('refeicoes_dia');
+    if (ultimo !== hoje()) {
+      refeicoes = [];
+      localStorage.setItem('refeicoes_hoje', '[]');
+      localStorage.setItem('refeicoes_dia', hoje());
+    }
+  }
+
+  function registrar() {
+    limparSeNovoDia();
+    const agora = Date.now();
+    refeicoes.push(agora);
+    localStorage.setItem('refeicoes_hoje', JSON.stringify(refeicoes));
+    localStorage.setItem('refeicoes_dia', hoje());
+    renderizar();
+    agendarNotificacao();
+  }
+
+  function pad(n) { return String(n).padStart(2,'0'); }
+
+  function formatarHora(ts) {
+    const d = new Date(ts);
+    return pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  function diffMinutos(a, b) {
+    return Math.round(Math.abs(a - b) / 60000);
+  }
+
+  function renderizar() {
+    limparSeNovoDia();
+    if (refeicoes.length === 0) {
+      document.getElementById('card-proximo').style.display = 'none';
+      document.getElementById('card-idle').style.display = 'block';
+      document.getElementById('history-list').innerHTML = '<div class="empty">Nenhuma refeição ainda</div>';
+      if (intervaloTick) clearInterval(intervaloTick);
+      return;
+    }
+
+    document.getElementById('card-idle').style.display = 'none';
+    document.getElementById('card-proximo').style.display = 'block';
+
+    const ultima = refeicoes[refeicoes.length - 1];
+    const proxima = ultima + INTERVALO;
+
+    if (intervaloTick) clearInterval(intervaloTick);
+    intervaloTick = setInterval(() => tick(ultima, proxima), 1000);
+    tick(ultima, proxima);
+
+    const lista = document.getElementById('history-list');
+    lista.innerHTML = '';
+    refeicoes.slice().reverse().forEach((ts, i) => {
+      const idx = refeicoes.length - 1 - i;
+      const row = document.createElement('div');
+      row.className = 'history-row';
+      let intervalHtml = '';
+      if (idx > 0) {
+        const mins = diffMinutos(ts, refeicoes[idx - 1]);
+        const horas = (mins / 60).toFixed(1);
+        const ok = mins >= 150 && mins <= 210;
+        intervalHtml = `<span class="history-interval ${ok ? 'interval-ok' : 'interval-late'}">${horas}h depois</span>`;
+      }
+      row.innerHTML = `<span class="history-name">${NOMES[idx] || (idx+1)+'ª refeição'}</span><span class="history-time">${formatarHora(ts)}</span>${intervalHtml}`;
+      lista.appendChild(row);
+    });
+  }
+
+  function tick(ultima, proxima) {
+    const agora = Date.now();
+    const restante = proxima - agora;
+    const total = INTERVALO;
+    const el = document.getElementById('countdown');
+    const bar = document.getElementById('progress-bar');
+    const nextEl = document.getElementById('next-time');
+
+    nextEl.textContent = 'às ' + formatarHora(proxima);
+
+    if (restante <= 0) {
+      el.textContent = 'Hora de comer!';
+      el.className = 'countdown urgent';
+      bar.style.width = '100%';
+      bar.style.background = '#C0392B';
+      return;
+    }
+
+    const h = Math.floor(restante / 3600000);
+    const m = Math.floor((restante % 3600000) / 60000);
+    const s = Math.floor((restante % 60000) / 1000);
+    el.textContent = (h > 0 ? pad(h) + ':' : '') + pad(m) + ':' + pad(s);
+
+    const pct = Math.max(0, Math.min(100, (restante / total) * 100));
+    bar.style.width = pct + '%';
+
+    if (restante < 30 * 60 * 1000) {
+      el.className = 'countdown urgent';
+      bar.style.background = '#E67E22';
+    } else {
+      el.className = 'countdown ok';
+      bar.style.background = '#1D9E75';
+    }
+  }
+
+  function pedirNotificacao() {
+    if (!('Notification' in window)) {
+      alert('Seu navegador não suporta notificações.');
+      return;
+    }
+    Notification.requestPermission().then(p => {
+      const btn = document.getElementById('notif-btn');
+      if (p === 'granted') {
+        btn.textContent = 'Notificações ativadas';
+        btn.classList.add('notif-ok');
+      } else {
+        btn.textContent = 'Permissão negada pelo navegador';
+      }
+    });
+  }
+
+  function agendarNotificacao() {
+    if (timerNotif) clearTimeout(timerNotif);
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const ultima = refeicoes[refeicoes.length - 1];
+    const proxima = ultima + INTERVALO;
+    const delay = proxima - Date.now();
+    if (delay > 0) {
+      timerNotif = setTimeout(() => {
+        new Notification('Hora da refeição!', { body: 'Já se passaram 3 horas desde a última refeição.', icon: '' });
+      }, delay);
+    }
+  }
+
+  function init() {
+    limparSeNovoDia();
+    const btn = document.getElementById('notif-btn');
+    if ('Notification' in window && Notification.permission === 'granted') {
+      btn.textContent = 'Notificações ativadas';
+      btn.classList.add('notif-ok');
+    }
+    renderizar();
+    if (refeicoes.length > 0) agendarNotificacao();
+  }
+
+  init();
+</script>
+</body>
+</html>
