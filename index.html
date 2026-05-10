@@ -58,7 +58,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .empty{font-size:13px;color:var(--subtle);text-align:center;padding:12px 0;}
 
 /* bottom nav */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:0.5px solid var(--border);display:flex;max-width:420px;margin:0 auto;left:50%;transform:translateX(-50%);}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--card);border-top:0.5px solid var(--border);display:flex;}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);gap:3px;position:relative;}
 .nav-btn.active{color:var(--text);}
 .nav-icon{font-size:22px;}
@@ -148,6 +148,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .notif-bar{background:var(--blue-bg);border:0.5px solid rgba(55,138,221,0.3);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px;color:var(--blue-text);}
 .notif-bar button{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;}
 .spacer{height:24px;}
+
+/* tabela log financeiro */
+.log-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px;}
+.log-table th{font-size:11px;color:var(--muted);font-weight:500;text-align:left;padding:6px 8px;border-bottom:0.5px solid var(--border);}
+.log-table td{padding:8px 8px;border-bottom:0.5px solid rgba(0,0,0,0.05);vertical-align:top;color:var(--text);}
+.log-table tr:last-child td{border-bottom:none;}
+.log-table tr:hover td{background:rgba(0,0,0,0.02);}
+.log-wrap{background:var(--card);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:12px;}
 </style>
 </head>
 <body>
@@ -174,33 +182,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <button onclick="pedirNotif()">Ativar</button>
   </div>
 
-  <!-- REFEIÇÕES sempre visível -->
-  <div style="padding-top:20px">
-    <div class="section-title">Refeições</div>
-    <button class="btn-main" onclick="registrarRefeicao()">Registrar refeição agora</button>
-    <div class="card" id="card-countdown" style="display:none">
-      <div class="countdown ok" id="countdown">--:--</div>
-      <div class="next-time" id="next-time"></div>
-      <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:100%;background:var(--green)"></div></div>
-    </div>
-    <div class="card" id="card-idle" style="text-align:center">
-      <p style="font-size:13px;color:var(--muted)">Nenhuma refeição hoje.<br>Registre a primeira para começar.</p>
-    </div>
-    <div class="card" id="card-hist" style="display:none">
-      <div class="section-title" style="margin-bottom:8px">Histórico de hoje</div>
-      <div id="hist-list"></div>
-    </div>
-  </div>
-
-  <div class="spacer"></div>
-
   <!-- TABS -->
   <div id="tab-cuidados" class="tab active">
+    <!-- REFEIÇÕES dentro de cuidados -->
+    <div style="padding-top:20px">
+      <div class="section-title">Refeições</div>
+      <button class="btn-main" onclick="registrarRefeicao()">Registrar refeição agora</button>
+      <div class="card" id="card-countdown" style="display:none">
+        <div class="countdown ok" id="countdown">--:--</div>
+        <div class="next-time" id="next-time"></div>
+        <div class="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:100%;background:var(--green)"></div></div>
+      </div>
+      <div class="card" id="card-idle" style="text-align:center">
+        <p style="font-size:13px;color:var(--muted)">Nenhuma refeição hoje.<br>Registre a primeira para começar.</p>
+      </div>
+      <div class="card" id="card-hist" style="display:none">
+        <div class="section-title" style="margin-bottom:8px">Histórico de hoje</div>
+        <div id="hist-list"></div>
+      </div>
+    </div>
+    <div class="spacer"></div>
     <div class="section-title">Cuidados — <span id="nomes-label">Bloom & Floretto</span></div>
     <div id="habitos-list"></div>
   </div>
 
   <div id="tab-mensal" class="tab">
+    <div style="padding-top:20px">
     <div class="mes-select">
       <button class="btn-nav-mes" onclick="mudarMes(-1)">‹</button>
       <span class="mes-label" id="mes-label"></span>
@@ -208,18 +215,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div id="cal-content"></div>
     <button class="btn-export" onclick="exportarMes()">Exportar como imagem</button>
+    </div>
   </div>
 
   <div id="tab-lembretes" class="tab">
-    <div class="section-title">Lembretes</div>
-    <div id="lembretes-list"></div>
-    <button class="btn-add" onclick="abrirModalLembrete(-1)">+ Adicionar lembrete</button>
+    <div style="padding-top:20px">
+      <div class="section-title">Lembretes</div>
+      <div id="lembretes-list"></div>
+      <button class="btn-add" onclick="abrirModalLembrete(-1)">+ Adicionar lembrete</button>
+    </div>
   </div>
 
   <div id="tab-financeiro" class="tab">
-    <div class="section-title">Controle financeiro</div>
-    <div id="fin-list"></div>
-    <button class="btn-add" onclick="abrirModalFin(-1)">+ Adicionar item</button>
+    <div style="padding-top:20px">
+      <div class="section-title">Controle financeiro</div>
+      <div id="fin-list"></div>
+      <button class="btn-add" onclick="abrirModalFin(-1)">+ Adicionar item</button>
+      <div class="spacer"></div>
+      <div class="section-title">Log completo de compras</div>
+      <div id="fin-log-completo"></div>
+    </div>
   </div>
 </div>
 
@@ -707,6 +722,37 @@ function deletarItemFin(i){
   const itens=getFinItens();itens.splice(i,1);saveFinItens(itens);renderFinanceiro();
 }
 
+function renderLogCompleto(){
+  const el=document.getElementById('fin-log-completo');
+  if(!el)return;
+  const itens=getFinItens();
+  // juntar todas as compras com o nome do item
+  let todas=[];
+  itens.forEach(item=>{
+    getCompras(item.id).forEach(c=>{
+      todas.push({...c,itemNome:item.nome,itemEmoji:item.emoji});
+    });
+  });
+  if(!todas.length){el.innerHTML='<div class="empty">Nenhuma compra registrada ainda</div>';return;}
+  // ordenar por data mais recente
+  todas.sort((a,b)=>b.ts-a.ts);
+  let html='<div class="log-wrap"><table class="log-table"><thead><tr><th>Data</th><th>Item</th><th>Marca</th><th>Qtd</th><th>Preço</th><th></th></tr></thead><tbody>';
+  todas.forEach((c,i)=>{
+    const itemIdx=itens.findIndex(it=>getCompras(it.id).some(x=>x.ts===c.ts&&x.marca===c.marca));
+    html+=`<tr>
+      <td style="white-space:nowrap">${fmtData(c.ts)}</td>
+      <td>${c.itemEmoji} ${c.itemNome}</td>
+      <td style="color:var(--muted)">${c.marca||'—'}</td>
+      <td style="color:var(--muted)">${c.qtd||'—'}</td>
+      <td style="white-space:nowrap">${c.preco?'R$ '+parseFloat(c.preco).toFixed(2):'—'}</td>
+      <td></td>
+    </tr>`;
+    if(c.nota)html+=`<tr><td colspan="6" style="color:var(--muted);font-size:11px;padding-top:0;padding-bottom:6px">${c.nota}</td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+}
+
 // ── MODAL ──
 function abrirModal(id){document.getElementById(id).classList.add('open');}
 function fecharModal(id){document.getElementById(id).classList.remove('open');}
@@ -720,6 +766,7 @@ function trocarTab(tab){
     document.getElementById('nav-'+t).classList.toggle('active',t===tab);
   });
   if(tab==='mensal')renderMensal();
+  if(tab==='financeiro')renderLogCompleto();
 }
 
 // ── NOTIFICAÇÕES ──
@@ -738,6 +785,7 @@ function init(){
   renderHabitos();
   renderLembretes();
   renderFinanceiro();
+  renderLogCompleto();
   renderMensal();
   if(load('ref_list',[]).length)agendarNotifRef();
   agendarNotifLembretes();
