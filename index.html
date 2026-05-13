@@ -174,6 +174,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <label>Nome do gato 2</label>
   <input id="nome2" value="Floretto" oninput="salvarNomes()">
   <button class="btn-close-drawer" onclick="fecharDrawer()">Fechar</button>
+  <div style="margin-top:16px;border-top:0.5px solid var(--border);padding-top:16px;display:flex;flex-direction:column;gap:8px;">
+    <button onclick="exportarBackup()" style="padding:10px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;font-size:13px;cursor:pointer;">📤 Exportar backup</button>
+    <label style="padding:10px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;font-size:13px;cursor:pointer;text-align:center;display:block;">
+      📥 Restaurar backup
+      <input type="file" accept=".json" onchange="importarBackup(event)" style="display:none">
+    </label>
+  </div>
 </div>
 
 <div class="page">
@@ -229,6 +236,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div id="tab-financeiro" class="tab">
     <div style="padding-top:20px">
       <div class="section-title">Controle financeiro</div>
+      <div id="fin-alertas-banner"></div>
       <div id="fin-list"></div>
       <button class="btn-add" onclick="abrirModalFin(-1)">+ Adicionar item</button>
       <div class="spacer"></div>
@@ -263,9 +271,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <label>Nome</label><input id="l-nome" placeholder="Ex: Vacina anual">
     <label>Ícone (emoji)</label><input id="l-emoji" placeholder="💉" maxlength="2">
     <label>Data</label><input id="l-data" type="date">
+    <label>Hora (opcional)</label><input id="l-hora" type="time" placeholder="Ex: 09:00">
     <label>Repetir</label>
     <select id="l-repeat">
       <option value="">Não repetir</option>
+      <option value="7">Semanal</option>
       <option value="30">Mensal</option>
       <option value="180">Semestral</option>
       <option value="365">Anual</option>
@@ -275,6 +285,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="modal-btns">
       <button class="btn-cancel" onclick="fecharModal('modal-lembrete')">Cancelar</button>
       <button class="btn-save" onclick="salvarLembrete()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-reg-data">
+  <div class="modal">
+    <h3>📅 Registrar em outra data</h3>
+    <label>Data</label><input id="rd-data" type="date">
+    <label>Hora</label><input id="rd-hora" type="time">
+    <label>Observação</label><textarea id="rd-nota" rows="2" placeholder="Opcional"></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fecharModal('modal-reg-data')">Cancelar</button>
+      <button class="btn-save" onclick="salvarRegistroData()">Salvar</button>
     </div>
   </div>
 </div>
@@ -390,7 +413,10 @@ function agendarNotifRef(){
   if(!('Notification'in window)||Notification.permission!=='granted')return;
   const list=load('ref_list',[]);if(!list.length)return;
   const delay=list[list.length-1]+INTERVALO_REF-Date.now();
-  if(delay>0)notifTimer=setTimeout(()=>new Notification('Hora da refeição!',{body:'Já se passaram 3 horas.'}),delay);
+  if(delay>0)notifTimer=setTimeout(()=>{
+    const nomes=load('nome1','Bloom')+' e '+load('nome2','Floretto');
+    new Notification('🐱 Hora da refeição!',{body:`Já se passaram 3 horas. ${nomes} estão com fome!`});
+  },delay);
 }
 
 // ── CUIDADOS ──
@@ -443,6 +469,14 @@ function renderHabitos(){
       }).join('');
       semanaHtml=`<div class="semana-grid">${dots}</div>`;
     }
+    if(h.tipo==='data'){
+      // últimos 8 registros como círculos
+      const dots=regs.slice(0,8).map(r=>{
+        const label=fmtData(r.ts);
+        return`<div class="semana-day" title="${label}"><span style="font-size:9px">${label.replace(' ','<br>')}</span><div class="semana-dot dot-ok" style="font-size:10px">✓</div></div>`;
+      }).join('');
+      if(dots)semanaHtml=`<div class="semana-grid" style="grid-template-columns:repeat(4,1fr);margin:10px 0">${dots}</div>`;
+    }
     let histHtml='';
     if(regs.length){
       histHtml='<div class="registros-list">'+regs.slice(0,5).map((r,i)=>`
@@ -460,7 +494,10 @@ function renderHabitos(){
       <div class="habito-meta">${h.freq}</div>
       ${semanaHtml}
       <textarea class="nota-input" id="nota-${h.id}" placeholder="Observação (opcional)..." rows="1"></textarea>
-      <button class="btn-registrar" onclick="registrarHabito('${h.id}')">Registrar agora</button>
+      <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+        <button class="btn-registrar" style="margin-top:0;flex:1" onclick="registrarHabito('${h.id}')">Registrar agora</button>
+        <button class="btn-registrar" style="margin-top:0;width:auto;padding:10px 12px;font-size:11px;color:var(--muted)" onclick="abrirRegistroData('${h.id}')" title="Registrar em outra data">📅</button>
+      </div>
       ${regs.length?`<div class="last-registro">Último: ${fmtData(regs[0].ts)} às ${fmtHora(regs[0].ts)}</div>`:''}
       ${histHtml}`;
     el.appendChild(div);
@@ -471,6 +508,28 @@ function registrarHabito(id){
   const nota=document.getElementById('nota-'+id).value.trim();
   addReg(id,nota);
   document.getElementById('nota-'+id).value='';
+  renderHabitos();
+}
+
+let registroDataId=null;
+function abrirRegistroData(id){
+  registroDataId=id;
+  document.getElementById('rd-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('rd-hora').value=new Date().toTimeString().slice(0,5);
+  document.getElementById('rd-nota').value=document.getElementById('nota-'+id)?.value||'';
+  abrirModal('modal-reg-data');
+}
+function salvarRegistroData(){
+  const data=document.getElementById('rd-data').value;
+  const hora=document.getElementById('rd-hora').value;
+  const nota=document.getElementById('rd-nota').value.trim();
+  if(!data){alert('Informe a data.');return;}
+  const ts=new Date(data+'T'+(hora||'12:00')+':00').getTime();
+  const r=getRegs(registroDataId);
+  r.unshift({ts,nota});
+  r.sort((a,b)=>b.ts-a.ts);
+  save('hab_'+registroDataId,r.slice(0,100));
+  fecharModal('modal-reg-data');
   renderHabitos();
 }
 
@@ -601,7 +660,7 @@ function agendarNotifLembretes(){
   getLembretes().forEach(l=>{
     const d=new Date(l.data);d.setHours(9,0,0,0);
     const delay=d-Date.now();
-    if(delay>0&&delay<7*24*60*60*1000)setTimeout(()=>new Notification(`Lembrete: ${l.nome}`,{body:l.obs||'Verifique o app.'}),delay);
+    if(delay>0&&delay<7*24*60*60*1000)setTimeout(()=>new Notification(`🔔 ${l.emoji||''} ${l.nome}`,{body:l.obs||'Você tem um lembrete hoje!'}),delay);
   });
 }
 
@@ -659,8 +718,20 @@ function renderFinanceiro(){
 
 function toggleAlerta(id,on){
   save('fin_alerta_'+id,on);
-  if(on&&'Notification'in window&&Notification.permission==='granted'){
-    new Notification('Tá acabando!',{body:`${id} está acabando. Hora de comprar!`});
+  if(on){
+    // notificação
+    if('Notification'in window&&Notification.permission==='granted'){
+      const itens=getFinItens();const item=itens.find(i=>i.id===id);
+      new Notification('⚠️ Tá acabando!',{body:`${item?.emoji||''} ${item?.nome||id} está acabando. Hora de comprar!`});
+    } else if('Notification'in window&&Notification.permission!=='denied'){
+      Notification.requestPermission().then(p=>{
+        if(p==='granted'){
+          const itens=getFinItens();const item=itens.find(i=>i.id===id);
+          new Notification('⚠️ Tá acabando!',{body:`${item?.emoji||''} ${item?.nome||id} está acabando. Hora de comprar!`});
+          document.getElementById('notif-bar').style.display='none';
+        }
+      });
+    }
   }
   renderFinanceiro();
 }
@@ -722,6 +793,40 @@ function deletarItemFin(i){
   const itens=getFinItens();itens.splice(i,1);saveFinItens(itens);renderFinanceiro();
 }
 
+function renderFinAlertas(){
+  const el=document.getElementById('fin-alertas-banner');
+  if(!el)return;
+  const itens=getFinItens();
+  const alertas=itens.filter(i=>load('fin_alerta_'+i.id,false));
+  if(!alertas.length){el.innerHTML='';return;}
+  el.innerHTML=alertas.map(i=>`
+    <div style="background:var(--orange-bg);border:0.5px solid var(--orange);border-radius:12px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--orange-text)">
+      ⚠️ <span><strong>${i.emoji} ${i.nome}</strong> — tá acabando! Hora de comprar.</span>
+    </div>`).join('');
+}
+
+// ── BACKUP ──
+function exportarBackup(){
+  const keys=Object.keys(localStorage).filter(k=>k.startsWith('fin_')||['ref_list','ref_dia','nome1','nome2','lembretes','hab_unhas','hab_banho','hab_escovapelo','hab_escovadente'].includes(k));
+  const data={};keys.forEach(k=>{try{data[k]=JSON.parse(localStorage.getItem(k));}catch(e){data[k]=localStorage.getItem(k);}});
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='CatMeals_Backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importarBackup(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      Object.entries(data).forEach(([k,v])=>localStorage.setItem(k,JSON.stringify(v)));
+      alert('Backup restaurado! O app será recarregado.');location.reload();
+    }catch(err){alert('Arquivo inválido.');}
+  };
+  reader.readAsText(file);
+}
+
 function renderLogCompleto(){
   const el=document.getElementById('fin-log-completo');
   if(!el)return;
@@ -766,7 +871,7 @@ function trocarTab(tab){
     document.getElementById('nav-'+t).classList.toggle('active',t===tab);
   });
   if(tab==='mensal')renderMensal();
-  if(tab==='financeiro')renderLogCompleto();
+  if(tab==='financeiro'){renderLogCompleto();renderFinAlertas();}
 }
 
 // ── NOTIFICAÇÕES ──
@@ -785,6 +890,7 @@ function init(){
   renderHabitos();
   renderLembretes();
   renderFinanceiro();
+  renderFinAlertas();
   renderLogCompleto();
   renderMensal();
   if(load('ref_list',[]).length)agendarNotifRef();
