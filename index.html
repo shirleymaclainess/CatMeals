@@ -5,12 +5,17 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.ico" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#faad2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CatMeals">
 <title>CatMeals</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#F8F7F4;--card:#fff;--border:rgba(0,0,0,0.1);
   --text:#1A1A1A;--muted:#888;--subtle:#bbb;
+  --accent:#faad2e;--accent-btn:#fbbe55;--accent-bg:#fff8e7;
   --green:#1D9E75;--green-bg:#EAF3DE;--green-text:#27500A;
   --orange:#E67E22;--orange-bg:#FAEEDA;--orange-text:#633806;
   --red:#C0392B;--red-bg:#FCEBEB;--red-text:#791F1F;
@@ -34,7 +39,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .drawer label{font-size:12px;color:var(--muted);display:block;margin-bottom:4px;margin-top:12px;}
 .drawer input{width:100%;padding:9px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--bg);color:var(--text);}
 .drawer input:focus{outline:none;border-color:rgba(0,0,0,0.3);}
-.btn-close-drawer{margin-top:20px;width:100%;padding:11px;background:var(--text);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;}
+.btn-close-drawer{margin-top:20px;width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;}
 
 .section-title{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
 .card{background:var(--card);border:0.5px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;}
@@ -47,7 +52,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .next-time{font-size:14px;color:var(--muted);margin-top:4px;}
 .progress-wrap{margin-top:14px;height:4px;background:rgba(0,0,0,0.08);border-radius:2px;overflow:hidden;}
 .progress-bar{height:100%;border-radius:2px;transition:width .5s,background .5s;}
-.btn-main{width:100%;padding:14px;background:var(--text);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;transition:opacity .15s,transform .1s;margin-bottom:14px;}
+.btn-main{width:100%;padding:14px;background:var(--accent-btn);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;margin-bottom:14px;}
 .btn-main:active{transform:scale(.98);opacity:.85;}
 .history-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,0.07);font-size:13px;}
 .history-row:last-child{border-bottom:none;}
@@ -60,7 +65,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* bottom nav */
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--card);border-top:0.5px solid var(--border);display:flex;}
 .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;background:none;border:none;cursor:pointer;font-size:11px;color:var(--muted);gap:3px;position:relative;}
-.nav-btn.active{color:var(--text);}
+.nav-btn.active{color:var(--accent);}
 .nav-icon{font-size:22px;}
 .nav-badge{position:absolute;top:6px;right:calc(50% - 20px);background:var(--red);color:#fff;font-size:10px;font-weight:600;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;}
 
@@ -76,8 +81,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .status-warn{background:var(--orange-bg);color:var(--orange-text);}
 .status-late{background:var(--red-bg);color:var(--red-text);}
 .habito-meta{font-size:12px;color:var(--muted);margin-bottom:10px;}
-.btn-registrar{width:100%;padding:10px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;margin-top:8px;}
-.btn-registrar:active{background:#eee;}
+.btn-registrar{width:100%;padding:10px;background:var(--accent-bg);border:0.5px solid var(--accent);border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;margin-top:8px;color:var(--text);}
+.btn-registrar:active{opacity:.8;}
 .last-registro{font-size:12px;color:var(--muted);margin-top:6px;text-align:center;}
 .nota-input{width:100%;margin-top:8px;padding:8px 10px;border:0.5px solid var(--border);border-radius:8px;font-size:13px;background:var(--bg);color:var(--text);resize:none;}
 .nota-input:focus{outline:none;border-color:rgba(0,0,0,0.25);}
@@ -141,7 +146,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .modal input:focus,.modal select:focus,.modal textarea:focus{outline:none;border-color:rgba(0,0,0,0.3);}
 .modal-btns{display:flex;gap:8px;margin-top:16px;}
 .btn-cancel{flex:1;padding:12px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;font-size:14px;cursor:pointer;}
-.btn-save{flex:2;padding:12px;background:var(--text);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;}
+.btn-save{flex:2;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;}
 .btn-del-icon{background:none;border:none;color:var(--subtle);font-size:16px;cursor:pointer;padding:4px;}
 .hidden{display:none;}
 
@@ -173,6 +178,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <input id="nome1" value="Bloom" oninput="salvarNomes()">
   <label>Nome do gato 2</label>
   <input id="nome2" value="Floretto" oninput="salvarNomes()">
+  <label>🔊 URL do som de notificação (.mp3)</label>
+  <input id="som_url_input" placeholder="https://...arquivo.mp3" oninput="salvarSom()">
+  <div style="font-size:11px;color:var(--muted);margin-top:4px">Deixe vazio para usar o som padrão do sistema</div>
   <button class="btn-close-drawer" onclick="fecharDrawer()">Fechar</button>
   <div style="margin-top:16px;border-top:0.5px solid var(--border);padding-top:16px;display:flex;flex-direction:column;gap:8px;">
     <button onclick="exportarBackup()" style="padding:10px;background:var(--bg);border:0.5px solid var(--border);border-radius:10px;font-size:13px;cursor:pointer;">📤 Exportar backup</button>
@@ -209,7 +217,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
     <div class="spacer"></div>
-    <div class="section-title">Cuidados — <span id="nomes-label">Bloom & Floretto</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <div class="section-title" style="margin-bottom:0">Cuidados — <span id="nomes-label">Bloom & Floretto</span></div>
+      <span title="Para remover um registro, clique na bolinha verde" style="cursor:help;font-size:13px;color:var(--muted)">ℹ️</span>
+      <button onclick="abrirModal('modal-novo-cuidado')" style="margin-left:auto;padding:5px 12px;border:0.5px solid var(--accent);border-radius:8px;font-size:12px;color:var(--accent);background:var(--accent-bg);cursor:pointer;font-weight:500">+ Novo</button>
+    </div>
     <div id="habitos-list"></div>
   </div>
 
@@ -289,19 +301,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-reg-data">
-  <div class="modal">
-    <h3>📅 Registrar em outra data</h3>
-    <label>Data</label><input id="rd-data" type="date">
-    <label>Hora</label><input id="rd-hora" type="time">
-    <label>Observação</label><textarea id="rd-nota" rows="2" placeholder="Opcional"></textarea>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="fecharModal('modal-reg-data')">Cancelar</button>
-      <button class="btn-save" onclick="salvarRegistroData()">Salvar</button>
-    </div>
-  </div>
-</div>
-
 <div class="modal-overlay" id="modal-compra">
   <div class="modal">
     <h3>Registrar compra</h3>
@@ -329,6 +328,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-novo-cuidado">
+  <div class="modal">
+    <h3>🐾 Novo cuidado</h3>
+    <label>Emoji</label><input id="nc-emoji" placeholder="🐾" maxlength="2">
+    <label>Nome</label><input id="nc-nome" placeholder="Ex: Hidratação das patas">
+    <label>Frequência (em dias)</label><input id="nc-dias" type="number" placeholder="Ex: 7 para semanal, 30 para mensal" min="1">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fecharModal('modal-novo-cuidado')">Cancelar</button>
+      <button class="btn-save" onclick="salvarNovoCuidado()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── STORAGE ──
 function load(k,d){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
@@ -341,6 +353,25 @@ function hoje(){return new Date().toDateString();}
 // ── DRAWER ──
 function abrirDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('drawer-overlay').classList.add('open');}
 function fecharDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawer-overlay').classList.remove('open');}
+
+function tocarSom(){
+  const url=load('som_url','');
+  if(url){
+    try{const a=new Audio(url);a.play().catch(()=>{});}catch(e){}
+  } else {
+    try{
+      const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      [523,659,784].forEach((f,i)=>{
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.connect(g);g.connect(ctx.destination);
+        o.frequency.value=f;
+        g.gain.setValueAtTime(0.2,ctx.currentTime+i*0.18);
+        g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.18+0.4);
+        o.start(ctx.currentTime+i*0.18);o.stop(ctx.currentTime+i*0.18+0.4);
+      });
+    }catch(e){}
+  }
+}
 
 // ── REFEIÇÕES ──
 const INTERVALO_REF=3*60*60*1000;
@@ -415,38 +446,78 @@ function agendarNotifRef(){
   const delay=list[list.length-1]+INTERVALO_REF-Date.now();
   if(delay>0)notifTimer=setTimeout(()=>{
     const nomes=load('nome1','Bloom')+' e '+load('nome2','Floretto');
+    tocarSom();
     new Notification('🐱 Hora da refeição!',{body:`Já se passaram 3 horas. ${nomes} estão com fome!`});
   },delay);
 }
 
 // ── CUIDADOS ──
-const HABITOS_DEF=[
-  {id:'unhas',emoji:'✂️',nome:'Cortar unhas / aparar pelos',freq:'A cada 15 dias',dias:15,tipo:'data'},
-  {id:'banho',emoji:'🛁',nome:'Banho',freq:'Mensal (máx 3 meses)',dias:90,alerta:60,tipo:'data'},
-  {id:'escovapelo',emoji:'🪮',nome:'Escovação de pelo + lenço',freq:'3x por semana',vezesSemana:3,tipo:'semana'},
-  {id:'escovadente',emoji:'🦷',nome:'Escovação de dentes',freq:'3x por semana',vezesSemana:3,tipo:'semana'},
+const HABITOS_BUILTIN=[
+  {id:'unhas',emoji:'✂️',nome:'Cortar unhas / aparar pelos',dias:15},
+  {id:'banho',emoji:'🛁',nome:'Banho',dias:90},
+  {id:'escovapelo',emoji:'🪮',nome:'Escovação de pelo + lenço',dias:2},
+  {id:'escovadente',emoji:'🦷',nome:'Escovação de dentes',dias:2},
 ];
 
+function getHabitosDef(){
+  const custom=load('cuidados_custom',[]);
+  return [...HABITOS_BUILTIN,...custom];
+}
+
+function salvarNovoCuidado(){
+  const emoji=document.getElementById('nc-emoji').value.trim()||'🐾';
+  const nome=document.getElementById('nc-nome').value.trim();
+  const dias=parseInt(document.getElementById('nc-dias').value)||7;
+  if(!nome){alert('Informe o nome.');return;}
+  const custom=load('cuidados_custom',[]);
+  custom.push({id:'c_'+Date.now(),emoji,nome,dias});
+  save('cuidados_custom',custom);
+  fecharModal('modal-novo-cuidado');
+  document.getElementById('nc-nome').value='';document.getElementById('nc-emoji').value='';document.getElementById('nc-dias').value='';
+  renderHabitos();
+}
+
+function removerCuidadoCustom(id){
+  if(!confirm('Remover este cuidado personalizado?'))return;
+  const custom=load('cuidados_custom',[]).filter(c=>c.id!==id);
+  save('cuidados_custom',custom);
+  renderHabitos();
+}
+
 function getRegs(id){return load('hab_'+id,[]);}
-function addReg(id,nota){const r=getRegs(id);r.unshift({ts:Date.now(),nota:nota||''});save('hab_'+id,r.slice(0,100));}
-function delReg(id,i){const r=getRegs(id);r.splice(i,1);save('hab_'+id,r);renderHabitos();}
+
+function temRegistroHoje(id){
+  const regs=getRegs(id);
+  const ini=new Date();ini.setHours(0,0,0,0);
+  const fim=new Date();fim.setHours(23,59,59,999);
+  return regs.some(r=>r.ts>=ini.getTime()&&r.ts<=fim.getTime());
+}
+
+function registrarHabito(id){
+  if(temRegistroHoje(id)){alert('Já registrado hoje!');return;}
+  const nota=document.getElementById('nota-'+id)?.value.trim()||'';
+  const r=getRegs(id);
+  r.unshift({ts:Date.now(),nota});
+  save('hab_'+id,r.slice(0,100));
+  if(document.getElementById('nota-'+id))document.getElementById('nota-'+id).value='';
+  renderHabitos();
+}
+
+function removerRegistro(id,ts){
+  if(!confirm('Tem certeza? O registro será removido.'))return;
+  const r=getRegs(id).filter(x=>x.ts!==ts);
+  save('hab_'+id,r);
+  renderHabitos();
+}
 
 function statusHabito(h){
   const r=getRegs(h.id);
-  if(h.tipo==='data'){
-    if(!r.length)return{label:'Nunca feito',cls:'status-late'};
-    const dias=Math.floor((Date.now()-r[0].ts)/86400000);
-    const alerta=h.alerta||Math.round(h.dias*0.7);
-    if(dias<alerta)return{label:'Em dia',cls:'status-ok'};
-    if(dias<h.dias)return{label:`${dias}d atrás`,cls:'status-warn'};
-    return{label:`${dias}d — atrasado`,cls:'status-late'};
-  } else {
-    const semAgo=Date.now()-7*24*60*60*1000;
-    const cnt=r.filter(x=>x.ts>=semAgo).length;
-    if(cnt>=h.vezesSemana)return{label:`${cnt}x esta semana`,cls:'status-ok'};
-    if(cnt>0)return{label:`${cnt}/${h.vezesSemana}x esta semana`,cls:'status-warn'};
-    return{label:`0/${h.vezesSemana}x esta semana`,cls:'status-late'};
-  }
+  if(!r.length)return{label:'Nunca feito',cls:'status-late'};
+  const dias=Math.floor((Date.now()-r[0].ts)/86400000);
+  const alerta=Math.round(h.dias*0.7);
+  if(dias<alerta)return{label:'Em dia',cls:'status-ok'};
+  if(dias<h.dias)return{label:`${dias}d atrás`,cls:'status-warn'};
+  return{label:`${dias}d — atrasado`,cls:'status-late'};
 }
 
 function renderHabitos(){
@@ -454,83 +525,47 @@ function renderHabitos(){
   const n1=load('nome1','Bloom');const n2=load('nome2','Floretto');
   document.getElementById('nomes-label').textContent=n1+' & '+n2;
   el.innerHTML='';
-  HABITOS_DEF.forEach(h=>{
+  const habitos=getHabitosDef();
+  habitos.forEach(h=>{
     const st=statusHabito(h);
     const regs=getRegs(h.id);
-    let semanaHtml='';
-    if(h.tipo==='semana'){
-      const days=['D','S','T','Q','Q','S','S'];
-      const dots=Array.from({length:7},(_,i)=>{
-        const d=new Date();d.setDate(d.getDate()-6+i);
-        const ini=new Date(d);ini.setHours(0,0,0,0);
-        const fim=new Date(d);fim.setHours(23,59,59,999);
-        const feito=regs.some(r=>r.ts>=ini.getTime()&&r.ts<=fim.getTime());
-        return`<div class="semana-day"><span>${days[d.getDay()]}</span><div class="semana-dot ${feito?'dot-ok':'dot-empty'}">${feito?'✓':''}</div></div>`;
-      }).join('');
-      semanaHtml=`<div class="semana-grid">${dots}</div>`;
-    }
-    if(h.tipo==='data'){
-      // últimos 8 registros como círculos
-      const dots=regs.slice(0,8).map(r=>{
-        const label=fmtData(r.ts);
-        return`<div class="semana-day" title="${label}"><span style="font-size:9px">${label.replace(' ','<br>')}</span><div class="semana-dot dot-ok" style="font-size:10px">✓</div></div>`;
-      }).join('');
-      if(dots)semanaHtml=`<div class="semana-grid" style="grid-template-columns:repeat(4,1fr);margin:10px 0">${dots}</div>`;
-    }
-    let histHtml='';
-    if(regs.length){
-      histHtml='<div class="registros-list">'+regs.slice(0,5).map((r,i)=>`
-        <div class="registro-row">
-          <div><div>${fmtData(r.ts)} às ${fmtHora(r.ts)}</div>${r.nota?`<div class="registro-nota">${r.nota}</div>`:''}</div>
-          <button class="btn-del-reg" onclick="delReg('${h.id}',${i})" title="Remover">✕</button>
-        </div>`).join('')+'</div>';
-    }
+    const isCustom=!HABITOS_BUILTIN.find(b=>b.id===h.id);
+    // bolinhas — 7 dias da semana
+    const days=['D','S','T','Q','Q','S','S'];
+    const dotsHtml=Array.from({length:7},(_,i)=>{
+      const d=new Date();d.setDate(d.getDate()-6+i);
+      const ini=new Date(d);ini.setHours(0,0,0,0);
+      const fim=new Date(d);fim.setHours(23,59,59,999);
+      const r=regs.find(x=>x.ts>=ini.getTime()&&x.ts<=fim.getTime());
+      const feito=!!r;
+      return`<div class="semana-day">
+        <span>${days[d.getDay()]}</span>
+        <div class="semana-dot ${feito?'dot-ok':'dot-empty'}" style="${feito?'cursor:pointer':''}" ${feito?`onclick="removerRegistro('${h.id}',${r.ts})" title="Clique para remover"`:''}>
+          ${feito?'✓':''}
+        </div>
+      </div>`;
+    }).join('');
+
+    const jaFezHoje=temRegistroHoje(h.id);
     const div=document.createElement('div');div.className='habito-card';
     div.innerHTML=`
       <div class="habito-header">
-        <div class="habito-title"><span>${h.emoji}</span>${h.nome}</div>
+        <div class="habito-title"><span>${h.emoji}</span>${h.nome}${isCustom?`<button onclick="removerCuidadoCustom('${h.id}')" style="background:none;border:none;color:var(--subtle);font-size:12px;cursor:pointer;padding:0 4px">🗑</button>`:''}</div>
         <span class="habito-status ${st.cls}">${st.label}</span>
       </div>
-      <div class="habito-meta">${h.freq}</div>
-      ${semanaHtml}
+      <div class="habito-meta">A cada ${h.dias} dia${h.dias>1?'s':''}</div>
+      <div class="semana-grid" style="margin:10px 0">${dotsHtml}</div>
       <textarea class="nota-input" id="nota-${h.id}" placeholder="Observação (opcional)..." rows="1"></textarea>
-      <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
-        <button class="btn-registrar" style="margin-top:0;flex:1" onclick="registrarHabito('${h.id}')">Registrar agora</button>
-        <button class="btn-registrar" style="margin-top:0;width:auto;padding:10px 12px;font-size:11px;color:var(--muted)" onclick="abrirRegistroData('${h.id}')" title="Registrar em outra data">📅</button>
-      </div>
-      ${regs.length?`<div class="last-registro">Último: ${fmtData(regs[0].ts)} às ${fmtHora(regs[0].ts)}</div>`:''}
-      ${histHtml}`;
+      <button class="btn-registrar" onclick="registrarHabito('${h.id}')" ${jaFezHoje?'style="opacity:.5;cursor:not-allowed"':''}>
+        ${jaFezHoje?'✓ Registrado hoje':'Registrar agora'}
+      </button>
+      ${regs.length?`<div class="last-registro">Último: ${fmtData(regs[0].ts)} às ${fmtHora(regs[0].ts)}</div>`:''}`;
     el.appendChild(div);
   });
 }
 
-function registrarHabito(id){
-  const nota=document.getElementById('nota-'+id).value.trim();
-  addReg(id,nota);
-  document.getElementById('nota-'+id).value='';
-  renderHabitos();
-}
-
-let registroDataId=null;
-function abrirRegistroData(id){
-  registroDataId=id;
-  document.getElementById('rd-data').value=new Date().toISOString().split('T')[0];
-  document.getElementById('rd-hora').value=new Date().toTimeString().slice(0,5);
-  document.getElementById('rd-nota').value=document.getElementById('nota-'+id)?.value||'';
-  abrirModal('modal-reg-data');
-}
-function salvarRegistroData(){
-  const data=document.getElementById('rd-data').value;
-  const hora=document.getElementById('rd-hora').value;
-  const nota=document.getElementById('rd-nota').value.trim();
-  if(!data){alert('Informe a data.');return;}
-  const ts=new Date(data+'T'+(hora||'12:00')+':00').getTime();
-  const r=getRegs(registroDataId);
-  r.unshift({ts,nota});
-  r.sort((a,b)=>b.ts-a.ts);
-  save('hab_'+registroDataId,r.slice(0,100));
-  fecharModal('modal-reg-data');
-  renderHabitos();
+function salvarSom(){
+  save('som_url',document.getElementById('som_url_input').value.trim());
 }
 
 function salvarNomes(){
@@ -550,7 +585,7 @@ function renderMensal(){
   const el=document.getElementById('cal-content');el.innerHTML='';
   const diasNoMes=new Date(ano,mes+1,0).getDate();
   const primeiroDia=new Date(ano,mes,1).getDay();
-  HABITOS_DEF.forEach(h=>{
+  getHabitosDef().forEach(h=>{
     const regs=getRegs(h.id);
     const div=document.createElement('div');div.className='cal-habito';
     let grid='<div class="cal-grid">';
@@ -598,14 +633,18 @@ function renderLembretes(){
   let alertas=0;el.innerHTML='';
   if(!list.length){el.innerHTML='<div class="empty">Nenhum lembrete ainda</div>';badge.classList.add('hidden');return;}
   list.forEach((l,i)=>{
-    const dias=Math.ceil((new Date(l.data)-Date.now())/86400000);
+    // corrigir bug de fuso: comparar apenas a parte da data sem converter para objeto Date diretamente
+    const [ano,mes,dia]=l.data.split('-').map(Number);
+    const dataLembrete=new Date(ano,mes-1,dia);
+    const hoje=new Date();hoje.setHours(0,0,0,0);
+    const dias=Math.round((dataLembrete-hoje)/(1000*60*60*24));
     let cls,label;
     if(dias<0){cls='status-late';label=`${Math.abs(dias)}d atrasado`;alertas++;}
     else if(dias===0){cls='status-warn';label='Hoje';alertas++;}
     else if(dias<=14){cls='status-warn';label=`Em ${dias}d`;alertas++;}
     else{cls='status-ok';label=`Em ${dias}d`;}
-    const d=new Date(l.data);
-    const ds=d.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+    const ds=dataLembrete.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+    const horaStr=l.hora?` · ⏰ ${l.hora}`:'';
     const div=document.createElement('div');div.className='lembrete-card';
     div.innerHTML=`
       <div class="lembrete-header">
@@ -616,7 +655,7 @@ function renderLembretes(){
           <button class="btn-del-icon" onclick="deletarLembrete(${i})">🗑</button>
         </div>
       </div>
-      <div class="lembrete-data">${ds}${l.repeat?` · repete a cada ${l.repeat} dias`:''}</div>
+      <div class="lembrete-data">${ds}${horaStr}${l.repeat?` · repete a cada ${l.repeat} dias`:''}</div>
       ${l.obs?`<div style="font-size:12px;color:var(--muted);margin-top:4px">${l.obs}</div>`:''}`;
     el.appendChild(div);
   });
@@ -631,6 +670,7 @@ function abrirModalLembrete(i){
   document.getElementById('l-nome').value=l.nome||'';
   document.getElementById('l-emoji').value=l.emoji||'';
   document.getElementById('l-data').value=l.data||'';
+  document.getElementById('l-hora').value=l.hora||'';
   document.getElementById('l-repeat').value=l.repeat||'';
   document.getElementById('l-obs').value=l.obs||'';
   abrirModal('modal-lembrete');
@@ -641,9 +681,16 @@ function salvarLembrete(){
   const data=document.getElementById('l-data').value;
   if(!nome||!data){alert('Preencha nome e data.');return;}
   const list=getLembretes();
-  const obj={nome,emoji:document.getElementById('l-emoji').value||'🔔',data,repeat:document.getElementById('l-repeat').value,obs:document.getElementById('l-obs').value.trim()};
+  const obj={
+    nome,
+    emoji:document.getElementById('l-emoji').value||'🔔',
+    data,
+    hora:document.getElementById('l-hora').value||'',
+    repeat:document.getElementById('l-repeat').value,
+    obs:document.getElementById('l-obs').value.trim()
+  };
   if(editLembreteIdx>=0)list[editLembreteIdx]=obj;else list.push(obj);
-  list.sort((a,b)=>new Date(a.data)-new Date(b.data));
+  list.sort((a,b)=>a.data.localeCompare(b.data));
   save('lembretes',list);
   fecharModal('modal-lembrete');
   renderLembretes();
@@ -658,9 +705,17 @@ function deletarLembrete(i){
 function agendarNotifLembretes(){
   if(!('Notification'in window)||Notification.permission!=='granted')return;
   getLembretes().forEach(l=>{
-    const d=new Date(l.data);d.setHours(9,0,0,0);
-    const delay=d-Date.now();
-    if(delay>0&&delay<7*24*60*60*1000)setTimeout(()=>new Notification(`🔔 ${l.emoji||''} ${l.nome}`,{body:l.obs||'Você tem um lembrete hoje!'}),delay);
+    const [ano,mes,dia]=l.data.split('-').map(Number);
+    const hora=l.hora?parseInt(l.hora.split(':')[0]):9;
+    const min=l.hora?parseInt(l.hora.split(':')[1]):0;
+    const alvo=new Date(ano,mes-1,dia,hora,min,0,0);
+    const delay=alvo.getTime()-Date.now();
+    if(delay>0&&delay<7*24*60*60*1000){
+      setTimeout(()=>{
+        tocarSom();
+        new Notification(`${l.emoji||'🔔'} ${l.nome}`,{body:l.obs||'Você tem um lembrete agora!'});
+      },delay);
+    }
   });
 }
 
@@ -886,6 +941,7 @@ function init(){
   if('Notification'in window&&Notification.permission==='default')document.getElementById('notif-bar').style.display='flex';
   document.getElementById('nome1').value=load('nome1','Bloom');
   document.getElementById('nome2').value=load('nome2','Floretto');
+  document.getElementById('som_url_input').value=load('som_url','');
   renderRefeicoes();
   renderHabitos();
   renderLembretes();
