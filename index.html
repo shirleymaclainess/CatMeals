@@ -373,6 +373,24 @@ function tocarSom(){
   }
 }
 
+function mostrarNotificacaoAndroid(titulo, corpo) {
+  const opcoes = {
+    body: corpo,
+    icon: 'favicon.ico', // Substitua pelo caminho do seu ícone de 192x192 se tiver
+    vibrate: [200, 100, 200, 100, 200], // Faz o celular vibrar
+    badge: 'favicon.ico' // Ícone pequeno na barra de status
+  };
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(registration => {
+      registration.showNotification(titulo, opcoes);
+    });
+  } else {
+    // Fallback caso o service worker não esteja disponível
+    new Notification(titulo, opcoes);
+  }
+}
+
 // ── REFEIÇÕES ──
 const INTERVALO_REF=3*60*60*1000;
 const NOMES_REF=['1ª','2ª','3ª','4ª','5ª','6ª','7ª','8ª'];
@@ -447,7 +465,7 @@ function agendarNotifRef(){
   if(delay>0)notifTimer=setTimeout(()=>{
     const nomes=load('nome1','Bloom')+' e '+load('nome2','Floretto');
     tocarSom();
-    new Notification('🐱 Hora da refeição!',{body:`Já se passaram 3 horas. ${nomes} estão com fome!`});
+    mostrarNotificacaoAndroid('🐱 Hora da refeição!', `Já se passaram 3 horas. ${nomes} estão com fome!`);
   },delay);
 }
 
@@ -713,7 +731,7 @@ function agendarNotifLembretes(){
     if(delay>0&&delay<7*24*60*60*1000){
       setTimeout(()=>{
         tocarSom();
-        new Notification(`${l.emoji||'🔔'} ${l.nome}`,{body:l.obs||'Você tem um lembrete agora!'});
+        mostrarNotificacaoAndroid(`${l.emoji||'🔔'} ${l.nome}`, l.obs || 'Você tem um lembrete agora!');
       },delay);
     }
   });
@@ -777,12 +795,12 @@ function toggleAlerta(id,on){
     // notificação
     if('Notification'in window&&Notification.permission==='granted'){
       const itens=getFinItens();const item=itens.find(i=>i.id===id);
-      new Notification('⚠️ Tá acabando!',{body:`${item?.emoji||''} ${item?.nome||id} está acabando. Hora de comprar!`});
+      mostrarNotificacaoAndroid('⚠️ Tá acabando!', `${item?.emoji||''} ${item?.nome||id} está acabando. Hora de comprar!`);
     } else if('Notification'in window&&Notification.permission!=='denied'){
       Notification.requestPermission().then(p=>{
         if(p==='granted'){
           const itens=getFinItens();const item=itens.find(i=>i.id===id);
-          new Notification('⚠️ Tá acabando!',{body:`${item?.emoji||''} ${item?.nome||id} está acabando. Hora de comprar!`});
+          mostrarNotificacaoAndroid('⚠️ Tá acabando!', `${item?.emoji||''} ${item?.nome||id} está acabando. Hora de comprar!`);
           document.getElementById('notif-bar').style.display='none';
         }
       });
